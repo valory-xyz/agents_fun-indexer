@@ -53,6 +53,21 @@ ponder.on("MemeBase:Hearted", async ({ event, context }) => {
       blockNumber: Number(event.block.number),
     },
   });
+  try {
+    await context.db.Heart.create({
+      id: event.log.id,
+      data: {
+        chain: "base",
+        hearter: event.args.hearter,
+        memeTokenId: event.args.memeToken,
+        amount: event.args.amount,
+        timestamp: Number(event.block.timestamp),
+        blockNumber: Number(event.block.number),
+      },
+    });
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 ponder.on("MemeCelo:Hearted", async ({ event, context }) => {
@@ -67,6 +82,21 @@ ponder.on("MemeCelo:Hearted", async ({ event, context }) => {
       blockNumber: Number(event.block.number),
     },
   });
+  try {
+    await context.db.Heart.create({
+      id: event.log.id,
+      data: {
+        chain: "celo",
+        hearter: event.args.hearter,
+        memeTokenId: event.args.memeToken,
+        amount: event.args.amount,
+        timestamp: Number(event.block.timestamp),
+        blockNumber: Number(event.block.number),
+      },
+    });
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 ponder.on("MemeBase:OLASJourneyToAscendance", async ({ event, context }) => {

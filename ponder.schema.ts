@@ -65,5 +65,15 @@ export default createSchema((p) => ({
     isUnleashed: p.boolean(),
     timestamp: p.int(),
     blockNumber: p.int(),
+    hearts: p.many("Heart.memeTokenId"),
+  }),
+  Heart: p.createTable({
+    id: p.string(),
+    chain: p.string(),
+    hearter: p.string(),
+    memeTokenId: p.string().references("MemeToken.id"),
+    amount: p.bigint(),
+    timestamp: p.int(),
+    blockNumber: p.int(),
   }),
 }));
