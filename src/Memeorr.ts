@@ -66,6 +66,17 @@ ponder.on("MemeBase:Hearted", async ({ event, context }) => {
       },
     });
 
+    const memeToken = await context.db.MemeToken.findUnique({
+      id: event.args.memeToken,
+    });
+
+    await context.db.MemeToken.update({
+      id: event.args.memeToken,
+      data: {
+        heartCount: (memeToken?.heartCount || 0n) + 1n,
+      },
+    });
+
     const hearterId = `${event.args.memeToken}`;
     const existingTotal = await context.db.totalHeartAmount.findUnique({
       id: hearterId,
@@ -114,6 +125,17 @@ ponder.on("MemeCelo:Hearted", async ({ event, context }) => {
         amount: event.args.amount,
         timestamp: Number(event.block.timestamp),
         blockNumber: Number(event.block.number),
+      },
+    });
+
+    const memeToken = await context.db.MemeToken.findUnique({
+      id: event.args.memeToken,
+    });
+
+    await context.db.MemeToken.update({
+      id: event.args.memeToken,
+      data: {
+        heartCount: (memeToken?.heartCount || 0n) + 1n,
       },
     });
 
