@@ -65,6 +65,28 @@ ponder.on("MemeBase:Hearted", async ({ event, context }) => {
         blockNumber: Number(event.block.number),
       },
     });
+
+    const hearterId = `${event.args.memeToken}`;
+    const existingTotal = await context.db.totalHeartAmount.findUnique({
+      id: hearterId,
+    });
+
+    if (existingTotal) {
+      await context.db.totalHeartAmount.update({
+        id: hearterId,
+        data: {
+          amount: existingTotal.amount + event.args.amount,
+        },
+      });
+    } else {
+      await context.db.totalHeartAmount.create({
+        id: hearterId,
+        data: {
+          chain: "base",
+          amount: event.args.amount,
+        },
+      });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -94,6 +116,28 @@ ponder.on("MemeCelo:Hearted", async ({ event, context }) => {
         blockNumber: Number(event.block.number),
       },
     });
+
+    const hearterId = `${event.args.memeToken}`;
+    const existingTotal = await context.db.totalHeartAmount.findUnique({
+      id: hearterId,
+    });
+
+    if (existingTotal) {
+      await context.db.totalHeartAmount.update({
+        id: hearterId,
+        data: {
+          amount: existingTotal.amount + event.args.amount,
+        },
+      });
+    } else {
+      await context.db.totalHeartAmount.create({
+        id: hearterId,
+        data: {
+          chain: "celo",
+          amount: event.args.amount,
+        },
+      });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -152,19 +196,32 @@ ponder.on("MemeCelo:Purged", async ({ event, context }) => {
 });
 
 ponder.on("MemeBase:Summoned", async ({ event, context }) => {
-  await context.db.MemeToken.create({
-    id: event.args.memeToken,
-    data: {
-      chain: "base",
-      owner: event.args.summoner,
-      lpPairAddress: "",
-      liquidity: 0n,
-      heartCount: 0n,
-      isUnleashed: false,
-      timestamp: Number(event.block.timestamp),
-      blockNumber: Number(event.block.number),
-    },
-  });
+  //create heartAmount
+  try {
+    await context.db.totalHeartAmount.create({
+      id: `${event.args.memeToken}`,
+      data: {
+        chain: "base",
+        amount: 0n,
+      },
+    });
+    await context.db.MemeToken.create({
+      id: event.args.memeToken,
+      data: {
+        chain: "base",
+        owner: event.args.summoner,
+        lpPairAddress: "",
+        liquidity: 0n,
+        heartCount: 0n,
+        isUnleashed: false,
+        timestamp: Number(event.block.timestamp),
+        blockNumber: Number(event.block.number),
+        heartAmountId: `${event.args.memeToken}`,
+      },
+    });
+  } catch (e) {
+    console.log(e);
+  }
 
   await context.db.SummonEvent.create({
     id: event.log.id,
@@ -180,31 +237,36 @@ ponder.on("MemeBase:Summoned", async ({ event, context }) => {
 });
 
 ponder.on("MemeCelo:Summoned", async ({ event, context }) => {
-  await context.db.MemeToken.create({
-    id: event.args.memeToken,
-    data: {
-      chain: "celo",
-      owner: event.args.summoner,
-      lpPairAddress: "",
-      liquidity: 0n,
-      heartCount: 0n,
-      isUnleashed: false,
-      timestamp: Number(event.block.timestamp),
-      blockNumber: Number(event.block.number),
-    },
-  });
+  try {
+    await context.db.MemeToken.create({
+      id: event.args.memeToken,
+      data: {
+        chain: "celo",
+        owner: event.args.summoner,
+        lpPairAddress: "",
+        liquidity: 0n,
+        heartCount: 0n,
+        isUnleashed: false,
+        timestamp: Number(event.block.timestamp),
+        blockNumber: Number(event.block.number),
+        heartAmountId: `${event.args.memeToken}`,
+      },
+    });
 
-  await context.db.SummonEvent.create({
-    id: event.log.id,
-    data: {
-      chain: "celo",
-      summoner: event.args.summoner,
-      memeToken: event.args.memeToken,
-      nativeTokenContributed: event.args.nativeTokenContributed,
-      timestamp: Number(event.block.timestamp),
-      blockNumber: Number(event.block.number),
-    },
-  });
+    await context.db.SummonEvent.create({
+      id: event.log.id,
+      data: {
+        chain: "celo",
+        summoner: event.args.summoner,
+        memeToken: event.args.memeToken,
+        nativeTokenContributed: event.args.nativeTokenContributed,
+        timestamp: Number(event.block.timestamp),
+        blockNumber: Number(event.block.number),
+      },
+    });
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 ponder.on("MemeBase:Unleashed", async ({ event, context }) => {

@@ -66,6 +66,8 @@ export default createSchema((p) => ({
     timestamp: p.int(),
     blockNumber: p.int(),
     hearts: p.many("Heart.memeTokenId"),
+    heartAmountId: p.string().references("totalHeartAmount.id"),
+    heartAmount: p.one("heartAmountId"),
   }),
   Heart: p.createTable({
     id: p.string(),
@@ -75,5 +77,10 @@ export default createSchema((p) => ({
     amount: p.bigint(),
     timestamp: p.int(),
     blockNumber: p.int(),
+  }),
+  totalHeartAmount: p.createTable({
+    id: p.string(),
+    chain: p.string(),
+    amount: p.bigint(),
   }),
 }));
