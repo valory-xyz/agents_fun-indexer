@@ -10,6 +10,16 @@ export default createSchema((p) => ({
     timestamp: p.int(),
     blockNumber: p.int(),
   }),
+  FeeCollectEvent: p.createTable({
+    id: p.string(),
+    chain: p.string(),
+    feeCollector: p.string(),
+    memeToken: p.string(),
+    nativeTokenAmount: p.bigint(),
+    memeTokenAmount: p.bigint(),
+    timestamp: p.int(),
+    blockNumber: p.int(),
+  }),
   HeartEvent: p.createTable({
     id: p.string(),
     chain: p.string(),

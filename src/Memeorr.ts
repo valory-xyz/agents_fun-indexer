@@ -1,17 +1,4 @@
-import type { Hex } from "viem";
-import { fromHex } from "viem";
-
 import { ponder } from "@/generated";
-
-import { FileStoreFrontendAbi } from "../abis/FileStoreFrontendAbi";
-
-const parseJson = (encodedJson: string, defaultValue: any = null) => {
-  try {
-    return JSON.parse(encodedJson);
-  } catch (e) {
-    return defaultValue;
-  }
-};
 
 // version 0.1.0 events
 ponder.on("MemeBase_0_1_0:Collected", async ({ event, context }) => {
@@ -365,6 +352,39 @@ ponder.on("MemeCelo_0_2_0:Collected", async ({ event, context }) => {
       hearter: event.args.hearter,
       memeToken: event.args.memeToken,
       allocation: event.args.allocation,
+      timestamp: Number(event.block.timestamp),
+      blockNumber: Number(event.block.number),
+    },
+  });
+});
+
+
+
+
+ponder.on("MemeBase_0_2_0:FeesCollected", async ({ event, context }) => {
+  await context.db.FeeCollectEvent.create({
+    id: event.log.id,
+    data: {
+      chain: "base",
+      feeCollector: event.args.feeCollector,
+      memeToken: event.args.memeToken,
+      nativeTokenAmount: event.args.nativeTokenAmount,
+      memeTokenAmount: event.args.memeTokenAmount,
+      timestamp: Number(event.block.timestamp),
+      blockNumber: Number(event.block.number),
+    },
+  });
+});
+
+ponder.on("MemeCelo_0_2_0:FeesCollected", async ({ event, context }) => {
+  await context.db.FeeCollectEvent.create({
+    id: event.log.id,
+    data: {
+      chain: "celo",
+      feeCollector: event.args.feeCollector,
+      memeToken: event.args.memeToken,
+      nativeTokenAmount: event.args.nativeTokenAmount,
+      memeTokenAmount: event.args.memeTokenAmount,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
     },
