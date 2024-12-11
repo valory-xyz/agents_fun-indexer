@@ -14,15 +14,15 @@ This indexer tracks the following Memeorr events:
 
 The indexed data is exposed via a GraphQL API that can be queried to analyze Memeorr activity.
 
-### Docker Deployment
+### Docker Deployment (development)
 
-Deploying the indexer with Docker is the easiest way to get started. It will run the indexer in development, inside a containerized environment, along with a PostgreSQL database.
+Deploying will Docker will run the indexer in development, inside a containerized environment, alongside a PostgreSQL database.
 
 1. Create a `.env` file following the `.env.example` template.
 2. Start the Docker container:
 
 ```bash
-docker-compose up
+docker-compose -f docker-compose.dev.yml up
 ```
 
 The GraphQL playground will be available at http://localhost:42069/graphql
