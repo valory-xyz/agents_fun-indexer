@@ -1,4 +1,4 @@
-export const MemeAbi = [
+export const MemeAbi_0_1_0 = [
   {
     inputs: [
       { internalType: "address", name: "_olas", type: "address" },
