@@ -397,7 +397,7 @@ ponder.on("MemeBase_0_2_0:Hearted", async ({ event, context }) => {
     data: {
       chain: "base",
       hearter: event.args.hearter,
-      memeToken: event.args.memeToken,
+      memeNonce: event.args.memeNonce,
       amount: event.args.amount,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
@@ -409,25 +409,32 @@ ponder.on("MemeBase_0_2_0:Hearted", async ({ event, context }) => {
       data: {
         chain: "base",
         hearter: event.args.hearter,
-        memeTokenId: event.args.memeToken,
+        memeNonce: event.args.memeNonce,
         amount: event.args.amount,
         timestamp: Number(event.block.timestamp),
         blockNumber: Number(event.block.number),
       },
     });
 
-    const memeToken = await context.db.MemeToken.findUnique({
-      id: event.args.memeToken,
-    });
+    // cannot specifiy memeNonce as unique, opt for findMany and limit 1
+    const memeToken = await context.db.MemeToken.findMany({
+      where: {
+        nonce: event.args.memeNonce,
+        chain: "base",        
+      },
+      limit: 1,
+    }).then(res => res.items[0]); // pull first item
+
+    if(!memeToken) return;
 
     await context.db.MemeToken.update({
-      id: event.args.memeToken,
+      id: memeToken.id,
       data: {
         heartCount: (memeToken?.heartCount || 0n) + 1n,
       },
     });
 
-    const hearterId = `${event.args.memeToken}`;
+    const hearterId = `${event.args.hearter}`;
     const existingTotal = await context.db.totalHeartAmount.findUnique({
       id: hearterId,
     });
@@ -445,6 +452,7 @@ ponder.on("MemeBase_0_2_0:Hearted", async ({ event, context }) => {
         data: {
           chain: "base",
           amount: event.args.amount,
+          nonce: event.args.memeNonce,
         },
       });
     }
@@ -459,7 +467,7 @@ ponder.on("MemeCelo_0_2_0:Hearted", async ({ event, context }) => {
     data: {
       chain: "celo",
       hearter: event.args.hearter,
-      memeToken: event.args.memeToken,
+      memeNonce: event.args.memeNonce,
       amount: event.args.amount,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
@@ -471,25 +479,32 @@ ponder.on("MemeCelo_0_2_0:Hearted", async ({ event, context }) => {
       data: {
         chain: "celo",
         hearter: event.args.hearter,
-        memeTokenId: event.args.memeToken,
+        memeNonce: event.args.memeNonce,
         amount: event.args.amount,
         timestamp: Number(event.block.timestamp),
         blockNumber: Number(event.block.number),
       },
     });
 
-    const memeToken = await context.db.MemeToken.findUnique({
-      id: event.args.memeToken,
-    });
+    // cannot specifiy memeNonce as unique, opt for findMany and limit 1
+    const memeToken = await context.db.MemeToken.findMany({
+      where: {
+        nonce: event.args.memeNonce,
+        chain: "base",        
+      },
+      limit: 1,
+    }).then(res => res.items[0]); // pull first item
+
+    if(!memeToken) return;
 
     await context.db.MemeToken.update({
-      id: event.args.memeToken,
+      id: memeToken.id,
       data: {
         heartCount: (memeToken?.heartCount || 0n) + 1n,
       },
     });
 
-    const hearterId = `${event.args.memeToken}`;
+    const hearterId = `${event.args.hearter}`;
     const existingTotal = await context.db.totalHeartAmount.findUnique({
       id: hearterId,
     });
@@ -507,6 +522,7 @@ ponder.on("MemeCelo_0_2_0:Hearted", async ({ event, context }) => {
         data: {
           chain: "celo",
           amount: event.args.amount,
+          nonce: event.args.memeNonce,
         },
       });
     }
@@ -520,7 +536,6 @@ ponder.on("MemeBase_0_2_0:OLASJourneyToAscendance", async ({ event, context }) =
     id: event.log.id,
     data: {
       chain: "base",
-      olas: event.args.olas,
       amount: event.args.amount,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
@@ -533,7 +548,6 @@ ponder.on("MemeCelo_0_2_0:OLASJourneyToAscendance", async ({ event, context }) =
     id: event.log.id,
     data: {
       chain: "celo",
-      olas: event.args.olas,
       amount: event.args.amount,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
@@ -547,7 +561,6 @@ ponder.on("MemeBase_0_2_0:Purged", async ({ event, context }) => {
     data: {
       chain: "base",
       memeToken: event.args.memeToken,
-      remainingAmount: event.args.remainingAmount,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
     },
@@ -560,7 +573,6 @@ ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
     data: {
       chain: "celo",
       memeToken: event.args.memeToken,
-      remainingAmount: event.args.remainingAmount,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
     },
@@ -570,14 +582,14 @@ ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
 ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
   try {
     await context.db.totalHeartAmount.create({
-      id: `${event.args.memeToken}`,
+      id: `${event.args.summoner}`,
       data: {
         chain: "base",
         amount: 0n,
       },
     });
     await context.db.MemeToken.create({
-      id: event.args.memeToken,
+      id: event.args.summoner,
       data: {
         chain: "base",
         owner: event.args.summoner,
@@ -587,7 +599,7 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
         isUnleashed: false,
         timestamp: Number(event.block.timestamp),
         blockNumber: Number(event.block.number),
-        heartAmountId: `${event.args.memeToken}`,
+        heartAmountId: `${event.args.memeNonce}`,
       },
     });
   } catch (e) {
@@ -599,8 +611,8 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
     data: {
       chain: "base",
       summoner: event.args.summoner,
-      memeToken: event.args.memeToken,
-      nativeTokenContributed: event.args.nativeTokenContributed,
+      memeNonce: event.args.memeNonce,
+      nativeTokenContributed: event.args.amount,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
     },
@@ -610,14 +622,14 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
 ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
   try {
     await context.db.totalHeartAmount.create({
-      id: `${event.args.memeToken}`,
+      id: `${event.args.memeNonce}`,
       data: {
         chain: "celo",
         amount: 0n,
       },
     });
     await context.db.MemeToken.create({
-      id: event.args.memeToken,
+      id: event.args.memeNonce.toString(),
       data: {
         chain: "celo",
         owner: event.args.summoner,
@@ -627,7 +639,7 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
         isUnleashed: false,
         timestamp: Number(event.block.timestamp),
         blockNumber: Number(event.block.number),
-        heartAmountId: `${event.args.memeToken}`,
+        heartAmountId: `${event.args.memeNonce}`,
       },
     });
 
@@ -636,8 +648,8 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
       data: {
         chain: "celo",
         summoner: event.args.summoner,
-        memeToken: event.args.memeToken,
-        nativeTokenContributed: event.args.nativeTokenContributed,
+        memeNonce: event.args.memeNonce,
+        nativeTokenContributed: event.args.amount,
         timestamp: Number(event.block.timestamp),
         blockNumber: Number(event.block.number),
       },
@@ -651,7 +663,8 @@ ponder.on("MemeBase_0_2_0:Unleashed", async ({ event, context }) => {
   await context.db.MemeToken.update({
     id: event.args.memeToken,
     data: {
-      lpPairAddress: event.args.lpPairAddress,
+      // lpPairAddress: event.args.lpTokenId,
+      lpTokenId: event.args.lpTokenId,
       liquidity: event.args.liquidity,
       isUnleashed: true,
     },
@@ -663,9 +676,10 @@ ponder.on("MemeBase_0_2_0:Unleashed", async ({ event, context }) => {
       chain: "base",
       unleasher: event.args.unleasher,
       memeToken: event.args.memeToken,
-      lpPairAddress: event.args.lpPairAddress,
+      // lpPairAddress: event.args.lpPairAddress,
+      lpTokenId: event.args.lpTokenId,
       liquidity: event.args.liquidity,
-      burnPercentageOfStable: event.args.burnPercentageOfStable,
+      // burnPercentageOfStable: event.args.burnPercentageOfStable,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
     },
@@ -676,7 +690,8 @@ ponder.on("MemeCelo_0_2_0:Unleashed", async ({ event, context }) => {
   await context.db.MemeToken.update({
     id: event.args.memeToken,
     data: {
-      lpPairAddress: event.args.lpPairAddress,
+      // lpPairAddress: event.args.lpPairAddress,
+      lpTokenId: event.args.lpTokenId,
       liquidity: event.args.liquidity,
       isUnleashed: true,
     },
@@ -688,9 +703,10 @@ ponder.on("MemeCelo_0_2_0:Unleashed", async ({ event, context }) => {
       chain: "celo",
       unleasher: event.args.unleasher,
       memeToken: event.args.memeToken,
-      lpPairAddress: event.args.lpPairAddress,
+      // lpPairAddress: event.args.lpPairAddress,
+      lpTokenId: event.args.lpTokenId,
       liquidity: event.args.liquidity,
-      burnPercentageOfStable: event.args.burnPercentageOfStable,
+      // burnPercentageOfStable: event.args.burnPercentageOfStable,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
     },
