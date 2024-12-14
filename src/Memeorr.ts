@@ -47,7 +47,7 @@ ponder.on("MemeBase_0_1_0:Hearted", async ({ event, context }) => {
       data: {
         chain: "base",
         hearter: event.args.hearter,
-        memeTokenId: event.args.memeToken,
+        memeToken: event.args.memeToken,
         amount: event.args.amount,
         timestamp: Number(event.block.timestamp),
         blockNumber: Number(event.block.number),
@@ -65,7 +65,8 @@ ponder.on("MemeBase_0_1_0:Hearted", async ({ event, context }) => {
       },
     });
 
-    const hearterId = `${event.args.memeToken}`;
+    const hearterId = `${event.args.hearter}`;
+
     const existingTotal = await context.db.totalHeartAmount.findUnique({
       id: hearterId,
     });
