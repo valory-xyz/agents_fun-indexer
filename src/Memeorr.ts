@@ -223,7 +223,7 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
       isUnleashed: false,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
-      // heartAmountId: `base-${event.args.memeToken}`,
+      heartAmountId: `base-${event.args.memeToken}`,
     },
   });
 
@@ -262,7 +262,7 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
       isUnleashed: false,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
-      // heartAmountId: `celo-${event.args.memeToken}`,
+      heartAmountId: `celo-${event.args.memeToken}`,
     },
   });
 
