@@ -80,6 +80,7 @@ export default createSchema((p) => ({
     lpTokenId: p.bigint(),
     liquidity: p.bigint(),
     heartCount: p.bigint(),
+    heartAmount: p.bigint(),
     isUnleashed: p.boolean(),
     timestamp: p.int(),
     blockNumber: p.int(),

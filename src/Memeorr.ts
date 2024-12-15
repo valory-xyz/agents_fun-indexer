@@ -50,6 +50,7 @@ ponder.on("MemeBase_0_1_0:Hearted", async ({ event, context }) => {
     id: `base-${event.args.memeToken}`,
     data: {
       heartCount: memeToken.heartCount + 1n,
+      heartAmount: memeToken.heartAmount + event.args.amount,
     },
   });
 });
@@ -75,6 +76,7 @@ ponder.on("MemeCelo_0_1_0:Hearted", async ({ event, context }) => {
     id: `celo-${event.args.memeToken}`,
     data: {
       heartCount: memeToken.heartCount + 1n,
+      heartAmount: memeToken.heartAmount + event.args.amount,
     },
   });
 });
@@ -143,6 +145,7 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
       lpTokenId: 0n,
       liquidity: 0n,
       heartCount: 0n,
+      heartAmount: event.args.nativeTokenContributed,
       isUnleashed: false,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
@@ -174,6 +177,7 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
       lpTokenId: 0n,
       liquidity: 0n,
       heartCount: 0n,
+      heartAmount: event.args.nativeTokenContributed,
       isUnleashed: false,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
@@ -326,6 +330,7 @@ ponder.on("MemeBase_0_2_0:Hearted", async ({ event, context }) => {
     id: memeToken.id,
     data: {
       heartCount: memeToken.heartCount + 1n,
+      heartAmount: memeToken.heartAmount + event.args.amount,
     },
   });
 });
@@ -351,6 +356,7 @@ ponder.on("MemeCelo_0_2_0:Hearted", async ({ event, context }) => {
     id: memeToken.id,
     data: {
       heartCount: memeToken.heartCount + 1n,
+      heartAmount: memeToken.heartAmount + event.args.amount,
     },
   });
 });
@@ -415,6 +421,7 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
       lpTokenId: 0n,
       liquidity: 0n,
       heartCount: 0n,
+      heartAmount: event.args.amount,
       isUnleashed: false,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
@@ -446,6 +453,7 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
       lpTokenId: 0n,
       liquidity: 0n,
       heartCount: 0n,
+      heartAmount: event.args.amount,
       isUnleashed: false,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
