@@ -7,10 +7,10 @@ import { MemeAbi_0_2_0 } from "./abis/MemeABI_0_2_0";
 
 export default createConfig({
   networks: {
-    mainnet: {
-      chainId: 1,
-      transport: http(process.env.PONDER_RPC_URL_1),
-    },
+    // mainnet: {
+    //   chainId: 1,
+    //   transport: http(process.env.PONDER_RPC_URL_1),
+    // },
     base: {
       chainId: 8453,
       transport: http(process.env.PONDER_RPC_URL_8453),
