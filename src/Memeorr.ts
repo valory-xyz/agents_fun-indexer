@@ -41,54 +41,54 @@ ponder.on("MemeBase_0_1_0:Hearted", async ({ event, context }) => {
       blockNumber: Number(event.block.number),
     },
   });
-  try {
-    await context.db.Heart.create({
-      id: event.log.id,
-      data: {
-        chain: "base",
-        hearter: event.args.hearter,
-        memeTokenId: event.args.memeToken,
-        amount: event.args.amount,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: Number(event.block.number),
-      },
-    });
+  // TODO: delete I think, why would we need this same info twice?
+  // await context.db.Heart.create({
+  //   id: event.log.id,
+  //   data: {
+  //     chain: "base",
+  //     hearter: event.args.hearter,
+  //     memeTokenId: event.args.memeToken,
+  //     amount: event.args.amount,
+  //     timestamp: Number(event.block.timestamp),
+  //     blockNumber: Number(event.block.number),
+  //   },
+  // });
 
-    const memeToken = await context.db.MemeToken.findUnique({
-      id: event.args.memeToken,
-    });
+  const memeToken = await context.db.MemeToken.findUnique({
+    id: `base-${event.args.memeToken}`,
+  });
 
-    await context.db.MemeToken.update({
-      id: event.args.memeToken,
-      data: {
-        heartCount: (memeToken?.heartCount || 0n) + 1n,
-      },
-    });
+  await context.db.MemeToken.update({
+    id: `base-${event.args.memeToken}`,
+    data: {
+      heartCount: memeToken.heartCount + 1n,
+    },
+  });
 
-    const hearterId = `${event.args.memeToken}`;
-    const existingTotal = await context.db.totalHeartAmount.findUnique({
-      id: hearterId,
-    });
+  // // TODO: why don't we use the same data on memeToken?
+  // const hearterId = `base-${event.args.memeToken}`;
+  // const existingTotal = await context.db.totalHeartAmount.findUnique({
+  //   id: hearterId,
+  // });
 
-    if (existingTotal) {
-      await context.db.totalHeartAmount.update({
-        id: hearterId,
-        data: {
-          amount: existingTotal.amount + event.args.amount,
-        },
-      });
-    } else {
-      await context.db.totalHeartAmount.create({
-        id: hearterId,
-        data: {
-          chain: "base",
-          amount: event.args.amount,
-        },
-      });
-    }
-  } catch (e) {
-    console.log(e);
-  }
+  // TODO: info already available in tokens, no need for global score
+  // // TODO: IF/ELSE not needed; can only be IF
+  // if (existingTotal) {
+  //   await context.db.totalHeartAmount.update({
+  //     id: hearterId,
+  //     data: {
+  //       amount: existingTotal.amount + event.args.amount,
+  //     },
+  //   });
+  // } else {
+  //   await context.db.totalHeartAmount.create({
+  //     id: hearterId,
+  //     data: {
+  //       chain: "base",
+  //       amount: event.args.amount,
+  //     },
+  //   });
+  // }
 });
 
 ponder.on("MemeCelo_0_1_0:Hearted", async ({ event, context }) => {
@@ -103,54 +103,50 @@ ponder.on("MemeCelo_0_1_0:Hearted", async ({ event, context }) => {
       blockNumber: Number(event.block.number),
     },
   });
-  try {
-    await context.db.Heart.create({
-      id: event.log.id,
-      data: {
-        chain: "celo",
-        hearter: event.args.hearter,
-        memeTokenId: event.args.memeToken,
-        amount: event.args.amount,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: Number(event.block.number),
-      },
-    });
+  // await context.db.Heart.create({
+  //   id: event.log.id,
+  //   data: {
+  //     chain: "celo",
+  //     hearter: event.args.hearter,
+  //     memeTokenId: event.args.memeToken,
+  //     amount: event.args.amount,
+  //     timestamp: Number(event.block.timestamp),
+  //     blockNumber: Number(event.block.number),
+  //   },
+  // });
 
-    const memeToken = await context.db.MemeToken.findUnique({
-      id: event.args.memeToken,
-    });
+  const memeToken = await context.db.MemeToken.findUnique({
+    id: `celo-${event.args.memeToken}`,
+  });
 
-    await context.db.MemeToken.update({
-      id: event.args.memeToken,
-      data: {
-        heartCount: (memeToken?.heartCount || 0n) + 1n,
-      },
-    });
+  await context.db.MemeToken.update({
+    id: `celo-${event.args.memeToken}`,
+    data: {
+      heartCount: memeToken.heartCount + 1n,
+    },
+  });
 
-    const hearterId = `${event.args.memeToken}`;
-    const existingTotal = await context.db.totalHeartAmount.findUnique({
-      id: hearterId,
-    });
+  // const hearterId = `celo-${event.args.memeToken}`;
+  // const existingTotal = await context.db.totalHeartAmount.findUnique({
+  //   id: hearterId,
+  // });
 
-    if (existingTotal) {
-      await context.db.totalHeartAmount.update({
-        id: hearterId,
-        data: {
-          amount: existingTotal.amount + event.args.amount,
-        },
-      });
-    } else {
-      await context.db.totalHeartAmount.create({
-        id: hearterId,
-        data: {
-          chain: "celo",
-          amount: event.args.amount,
-        },
-      });
-    }
-  } catch (e) {
-    console.log(e);
-  }
+  // if (existingTotal) {
+  //   await context.db.totalHeartAmount.update({
+  //     id: hearterId,
+  //     data: {
+  //       amount: existingTotal.amount + event.args.amount,
+  //     },
+  //   });
+  // } else {
+  //   await context.db.totalHeartAmount.create({
+  //     id: hearterId,
+  //     data: {
+  //       chain: "celo",
+  //       amount: event.args.amount,
+  //     },
+  //   });
+  // }
 });
 
 ponder.on("MemeBase_0_1_0:OLASJourneyToAscendance", async ({ event, context }) => {
@@ -206,32 +202,30 @@ ponder.on("MemeCelo_0_1_0:Purged", async ({ event, context }) => {
 });
 
 ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
-  //create heartAmount
-  try {
-    await context.db.totalHeartAmount.create({
-      id: `${event.args.memeToken}`,
-      data: {
-        chain: "base",
-        amount: 0n,
-      },
-    });
-    await context.db.MemeToken.create({
-      id: event.args.memeToken,
-      data: {
-        chain: "base",
-        owner: event.args.summoner,
-        lpPairAddress: "",
-        liquidity: 0n,
-        heartCount: 0n,
-        isUnleashed: false,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: Number(event.block.number),
-        heartAmountId: `${event.args.memeToken}`,
-      },
-    });
-  } catch (e) {
-    console.log(e);
-  }
+  // TODO: believe we can drop this table, not needed, just duplicates
+  // //create heartAmount
+  // await context.db.totalHeartAmount.create({
+  //   id: `base-${event.args.memeToken}`,
+  //   data: {
+  //     chain: "base",
+  //     amount: 0n,
+  //   },
+  // });
+  //create token
+  await context.db.MemeToken.create({
+    id: `base-${event.args.memeToken}`,
+    data: {
+      chain: "base",
+      owner: event.args.summoner,
+      lpPairAddress: "",
+      liquidity: 0n,
+      heartCount: 0n,
+      isUnleashed: false,
+      timestamp: Number(event.block.timestamp),
+      blockNumber: Number(event.block.number),
+      // heartAmountId: `base-${event.args.memeToken}`,
+    },
+  });
 
   await context.db.SummonEvent.create({
     id: event.log.id,
@@ -247,41 +241,47 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
 });
 
 ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
-  try {
-    await context.db.MemeToken.create({
-      id: event.args.memeToken,
-      data: {
-        chain: "celo",
-        owner: event.args.summoner,
-        lpPairAddress: "",
-        liquidity: 0n,
-        heartCount: 0n,
-        isUnleashed: false,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: Number(event.block.number),
-        heartAmountId: `${event.args.memeToken}`,
-      },
-    });
+  // TODO: believe we can drop this table, not needed, just duplicates
+  // //create heartAmount
+  // await context.db.totalHeartAmount.create({
+  //   id: `celo-${event.args.memeToken}`,
+  //   data: {
+  //     chain: "celo",
+  //     amount: 0n,
+  //   },
+  // });
+  // create token
+  await context.db.MemeToken.create({
+    id: `celo-${event.args.memeToken}`,
+    data: {
+      chain: "celo",
+      owner: event.args.summoner,
+      lpPairAddress: "",
+      liquidity: 0n,
+      heartCount: 0n,
+      isUnleashed: false,
+      timestamp: Number(event.block.timestamp),
+      blockNumber: Number(event.block.number),
+      // heartAmountId: `celo-${event.args.memeToken}`,
+    },
+  });
 
-    await context.db.SummonEvent.create({
-      id: event.log.id,
-      data: {
-        chain: "celo",
-        summoner: event.args.summoner,
-        memeToken: event.args.memeToken,
-        nativeTokenContributed: event.args.nativeTokenContributed,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: Number(event.block.number),
-      },
-    });
-  } catch (e) {
-    console.log(e);
-  }
+  await context.db.SummonEvent.create({
+    id: event.log.id,
+    data: {
+      chain: "celo",
+      summoner: event.args.summoner,
+      memeToken: event.args.memeToken,
+      nativeTokenContributed: event.args.nativeTokenContributed,
+      timestamp: Number(event.block.timestamp),
+      blockNumber: Number(event.block.number),
+    },
+  });
 });
 
 ponder.on("MemeBase_0_1_0:Unleashed", async ({ event, context }) => {
   await context.db.MemeToken.update({
-    id: event.args.memeToken,
+    id: `base-${event.args.memeToken}`,
     data: {
       lpPairAddress: event.args.lpPairAddress,
       liquidity: event.args.liquidity,
@@ -306,7 +306,7 @@ ponder.on("MemeBase_0_1_0:Unleashed", async ({ event, context }) => {
 
 ponder.on("MemeCelo_0_1_0:Unleashed", async ({ event, context }) => {
   await context.db.MemeToken.update({
-    id: event.args.memeToken,
+    id: `celo-${event.args.memeToken}`,
     data: {
       lpPairAddress: event.args.lpPairAddress,
       liquidity: event.args.liquidity,
@@ -403,62 +403,62 @@ ponder.on("MemeBase_0_2_0:Hearted", async ({ event, context }) => {
       blockNumber: Number(event.block.number),
     },
   });
-  try {
-    await context.db.Heart.create({
-      id: event.log.id,
-      data: {
-        chain: "base",
-        hearter: event.args.hearter,
-        memeNonce: event.args.memeNonce,
-        amount: event.args.amount,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: Number(event.block.number),
-      },
-    });
+  // await context.db.Heart.create({
+  //   id: event.log.id,
+  //   data: {
+  //     chain: "base",
+  //     hearter: event.args.hearter,
+  //     memeNonce: event.args.memeNonce,
+  //     amount: event.args.amount,
+  //     timestamp: Number(event.block.timestamp),
+  //     blockNumber: Number(event.block.number),
+  //   },
+  // });
 
-    // cannot specifiy memeNonce as unique, opt for findMany and limit 1
-    const memeToken = await context.db.MemeToken.findMany({
-      where: {
-        nonce: event.args.memeNonce,
-        chain: "base",        
-      },
-      limit: 1,
-    }).then(res => res.items[0]); // pull first item
+  // cannot specifiy memeNonce as unique, opt for findMany and limit 1
+  // const memeToken = await context.db.MemeToken.findMany({
+  //   where: {
+  //     nonce: event.args.memeNonce,
+  //     chain: "base",        
+  //   },
+  //   limit: 1,
+  // }).then(res => res.items[0]); // pull first item
 
-    if(!memeToken) return;
+  const memeToken = await context.db.MemeToken.findUnique({
+    id: `base-${event.args.memeNonce}`,
+  });
 
-    await context.db.MemeToken.update({
-      id: memeToken.id,
-      data: {
-        heartCount: (memeToken?.heartCount || 0n) + 1n,
-      },
-    });
+  // if(!memeToken) return;
 
-    const hearterId = `${event.args.hearter}`;
-    const existingTotal = await context.db.totalHeartAmount.findUnique({
-      id: hearterId,
-    });
+  await context.db.MemeToken.update({
+    id: memeToken.id,
+    data: {
+      heartCount: memeToken.heartCount + 1n,
+    },
+  });
 
-    if (existingTotal) {
-      await context.db.totalHeartAmount.update({
-        id: hearterId,
-        data: {
-          amount: existingTotal.amount + event.args.amount,
-        },
-      });
-    } else {
-      await context.db.totalHeartAmount.create({
-        id: hearterId,
-        data: {
-          chain: "base",
-          amount: event.args.amount,
-          nonce: event.args.memeNonce,
-        },
-      });
-    }
-  } catch (e) {
-    console.log(e);
-  }
+  // const hearterId = `base-${event.args.memeNonce}`;
+  // const existingTotal = await context.db.totalHeartAmount.findUnique({
+  //   id: hearterId,
+  // });
+
+  // if (existingTotal) {
+  //   await context.db.totalHeartAmount.update({
+  //     id: hearterId,
+  //     data: {
+  //       amount: existingTotal.amount + event.args.amount,
+  //     },
+  //   });
+  // } else {
+  //   await context.db.totalHeartAmount.create({
+  //     id: hearterId,
+  //     data: {
+  //       chain: "base",
+  //       amount: event.args.amount,
+  //       nonce: event.args.memeNonce,
+  //     },
+  //   });
+  // }
 });
 
 ponder.on("MemeCelo_0_2_0:Hearted", async ({ event, context }) => {
@@ -473,62 +473,62 @@ ponder.on("MemeCelo_0_2_0:Hearted", async ({ event, context }) => {
       blockNumber: Number(event.block.number),
     },
   });
-  try {
-    await context.db.Heart.create({
-      id: event.log.id,
-      data: {
-        chain: "celo",
-        hearter: event.args.hearter,
-        memeNonce: event.args.memeNonce,
-        amount: event.args.amount,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: Number(event.block.number),
-      },
-    });
+  // await context.db.Heart.create({
+  //   id: event.log.id,
+  //   data: {
+  //     chain: "celo",
+  //     hearter: event.args.hearter,
+  //     memeNonce: event.args.memeNonce,
+  //     amount: event.args.amount,
+  //     timestamp: Number(event.block.timestamp),
+  //     blockNumber: Number(event.block.number),
+  //   },
+  // });
 
-    // cannot specifiy memeNonce as unique, opt for findMany and limit 1
-    const memeToken = await context.db.MemeToken.findMany({
-      where: {
-        nonce: event.args.memeNonce,
-        chain: "base",        
-      },
-      limit: 1,
-    }).then(res => res.items[0]); // pull first item
+  // // cannot specifiy memeNonce as unique, opt for findMany and limit 1
+  // const memeToken = await context.db.MemeToken.findMany({
+  //   where: {
+  //     nonce: event.args.memeNonce,
+  //     chain: "base",        
+  //   },
+  //   limit: 1,
+  // }).then(res => res.items[0]); // pull first item
 
-    if(!memeToken) return;
+  const memeToken = await context.db.MemeToken.findUnique({
+    id: `celo-${event.args.memeNonce}`,
+  });
 
-    await context.db.MemeToken.update({
-      id: memeToken.id,
-      data: {
-        heartCount: (memeToken?.heartCount || 0n) + 1n,
-      },
-    });
+  // if(!memeToken) return;
 
-    const hearterId = `${event.args.hearter}`;
-    const existingTotal = await context.db.totalHeartAmount.findUnique({
-      id: hearterId,
-    });
+  await context.db.MemeToken.update({
+    id: memeToken.id,
+    data: {
+      heartCount: memeToken.heartCount + 1n,
+    },
+  });
 
-    if (existingTotal) {
-      await context.db.totalHeartAmount.update({
-        id: hearterId,
-        data: {
-          amount: existingTotal.amount + event.args.amount,
-        },
-      });
-    } else {
-      await context.db.totalHeartAmount.create({
-        id: hearterId,
-        data: {
-          chain: "celo",
-          amount: event.args.amount,
-          nonce: event.args.memeNonce,
-        },
-      });
-    }
-  } catch (e) {
-    console.log(e);
-  }
+  // const hearterId = `celo-${event.args.hearter}`;
+  // const existingTotal = await context.db.totalHeartAmount.findUnique({
+  //   id: hearterId,
+  // });
+
+  // if (existingTotal) {
+  //   await context.db.totalHeartAmount.update({
+  //     id: hearterId,
+  //     data: {
+  //       amount: existingTotal.amount + event.args.amount,
+  //     },
+  //   });
+  // } else {
+  //   await context.db.totalHeartAmount.create({
+  //     id: hearterId,
+  //     data: {
+  //       chain: "celo",
+  //       amount: event.args.amount,
+  //       nonce: event.args.memeNonce,
+  //     },
+  //   });
+  // }
 });
 
 ponder.on("MemeBase_0_2_0:OLASJourneyToAscendance", async ({ event, context }) => {
@@ -580,31 +580,29 @@ ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
 });
 
 ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
-  try {
-    await context.db.totalHeartAmount.create({
-      id: `${event.args.summoner}`,
-      data: {
-        chain: "base",
-        amount: 0n,
-      },
-    });
-    await context.db.MemeToken.create({
-      id: event.args.summoner,
-      data: {
-        chain: "base",
-        owner: event.args.summoner,
-        lpPairAddress: "",
-        liquidity: 0n,
-        heartCount: 0n,
-        isUnleashed: false,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: Number(event.block.number),
-        heartAmountId: `${event.args.memeNonce}`,
-      },
-    });
-  } catch (e) {
-    console.log(e);
-  }
+  // //create heartAmount
+  // await context.db.totalHeartAmount.create({
+  //   id: `base-${event.args.memeNonce}`,
+  //   data: {
+  //     chain: "base",
+  //     amount: 0n,
+  //   },
+  // });
+  //create token
+  await context.db.MemeToken.create({
+    id: `base-${event.args.memeNonce}`,
+    data: {
+      chain: "base",
+      owner: event.args.summoner,
+      lpPairAddress: "",
+      liquidity: 0n,
+      heartCount: 0n,
+      isUnleashed: false,
+      timestamp: Number(event.block.timestamp),
+      blockNumber: Number(event.block.number),
+      heartAmountId: `base-${event.args.memeNonce}`,
+    },
+  });
 
   await context.db.SummonEvent.create({
     id: event.log.id,
@@ -620,48 +618,44 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
 });
 
 ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
-  try {
-    await context.db.totalHeartAmount.create({
-      id: `${event.args.memeNonce}`,
-      data: {
-        chain: "celo",
-        amount: 0n,
-      },
-    });
-    await context.db.MemeToken.create({
-      id: event.args.memeNonce.toString(),
-      data: {
-        chain: "celo",
-        owner: event.args.summoner,
-        lpPairAddress: "",
-        liquidity: 0n,
-        heartCount: 0n,
-        isUnleashed: false,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: Number(event.block.number),
-        heartAmountId: `${event.args.memeNonce}`,
-      },
-    });
+  // await context.db.totalHeartAmount.create({
+  //   id: `celo-${event.args.memeNonce}`,
+  //   data: {
+  //     chain: "celo",
+  //     amount: 0n,
+  //   },
+  // });
+  await context.db.MemeToken.create({
+    id: `celo-${event.args.memeNonce}`,
+    data: {
+      chain: "celo",
+      owner: event.args.summoner,
+      lpPairAddress: "",
+      liquidity: 0n,
+      heartCount: 0n,
+      isUnleashed: false,
+      timestamp: Number(event.block.timestamp),
+      blockNumber: Number(event.block.number),
+      heartAmountId: `celo-${event.args.memeNonce}`,
+    },
+  });
 
-    await context.db.SummonEvent.create({
-      id: event.log.id,
-      data: {
-        chain: "celo",
-        summoner: event.args.summoner,
-        memeNonce: event.args.memeNonce,
-        nativeTokenContributed: event.args.amount,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: Number(event.block.number),
-      },
-    });
-  } catch (e) {
-    console.log(e);
-  }
+  await context.db.SummonEvent.create({
+    id: event.log.id,
+    data: {
+      chain: "celo",
+      summoner: event.args.summoner,
+      memeNonce: event.args.memeNonce,
+      nativeTokenContributed: event.args.amount,
+      timestamp: Number(event.block.timestamp),
+      blockNumber: Number(event.block.number),
+    },
+  });
 });
 
 ponder.on("MemeBase_0_2_0:Unleashed", async ({ event, context }) => {
   await context.db.MemeToken.update({
-    id: event.args.memeToken,
+    id: `base-${event.args.memeNonce}`,
     data: {
       // lpPairAddress: event.args.lpTokenId,
       lpTokenId: event.args.lpTokenId,
@@ -688,7 +682,7 @@ ponder.on("MemeBase_0_2_0:Unleashed", async ({ event, context }) => {
 
 ponder.on("MemeCelo_0_2_0:Unleashed", async ({ event, context }) => {
   await context.db.MemeToken.update({
-    id: event.args.memeToken,
+    id: `celo-${event.args.memeNonce}`,
     data: {
       // lpPairAddress: event.args.lpPairAddress,
       lpTokenId: event.args.lpTokenId,
