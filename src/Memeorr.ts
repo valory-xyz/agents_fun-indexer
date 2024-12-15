@@ -2,6 +2,7 @@ import { ponder } from "@/generated";
 import { Erc20Abi } from "./abis/Erc20Abi";
 import { MemeFactoryAbiBase } from "./abis/MemeFactoryAbiBase";
 import { MemeFactoryAbiCelo } from "./abis/MemeFactoryAbiCelo";
+import { decodeFunctionResult } from 'viem';
 
 // version 0.1.0 events
 ponder.on("MemeBase_0_1_0:Collected", async ({ event, context }) => {
@@ -504,8 +505,6 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
   });
 });
 
-import { decodeFunctionResult } from 'viem';
-
 ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
 
   // const results = await context.client.multicall({
@@ -555,26 +554,7 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
   }
 
   const rdata = await response.json();
-  console.log("Received data:", rdata);
 
-  // const ethers = require("ethers");
-
-  // function decodeResult(result) {
-  //   // Define the output types: string for name, string for symbol
-  //   const outputTypes = ["string", "string"];
-
-  //   // Slice the result to remove the '0x' prefix
-  //   const rawData = result.slice(2);
-
-  //   // Decode the data
-  //   const decoded = ethers.utils.defaultAbiCoder.decode(outputTypes, "0x" + rawData);
-
-  //   // Extract name and symbol
-  //   const name = decoded[0];
-  //   const symbol = decoded[1];
-
-  //   return { name, symbol };
-  // }
   const decoded = decodeFunctionResult({
       abi: MemeFactoryAbiCelo,
       functionName: 'memeSummons',
@@ -583,9 +563,6 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
 
   const name = decoded[0];
   const symbol = decoded[1];
-  // const { name, symbol } = decodeResult(rdata.result);
-  console.log("Name:", name);
-  console.log("Symbol:", symbol);
 
   await context.db.MemeToken.create({
     id: `celo-${event.args.memeNonce}`,
