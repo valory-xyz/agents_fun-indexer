@@ -91,7 +91,7 @@ Query all tokens and format:
  curl -X POST http://localhost:42069/graphql \
   -H "Content-Type: application/json" \
   -d '{
-    "query": "query { memeTokens { items { id chain owner memeToken memeNonce lpPairAddress lpTokenId liquidity heartCount isUnleashed timestamp blockNumber } } }"
+    "query": "query { memeTokens { items { id chain owner memeToken memeNonce lpPairAddress lpTokenId liquidity heartCount heartAmount isUnleashed timestamp blockNumber } } }"
   }' | awk '
   BEGIN { indent = 0 }
   {
