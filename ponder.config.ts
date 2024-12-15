@@ -1,7 +1,6 @@
 import { createConfig } from "@ponder/core";
 import { http } from "viem";
 
-// import { FileStoreAbi } from "./abis/FileStoreAbi";
 import { MemeAbi_0_1_0 } from "./abis/MemeABI_0_1_0";
 import { MemeAbi_0_2_0 } from "./abis/MemeABI_0_2_0";
 

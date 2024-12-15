@@ -1,4 +1,7 @@
 import { ponder } from "@/generated";
+import { Erc20Abi } from "./abis/Erc20Abi";
+import { MemeFactoryAbiBase } from "./abis/MemeFactoryAbiBase";
+import { MemeFactoryAbiCelo } from "./abis/MemeFactoryAbiCelo";
 
 // version 0.1.0 events
 ponder.on("MemeBase_0_1_0:Collected", async ({ event, context }) => {
@@ -134,6 +137,28 @@ ponder.on("MemeCelo_0_1_0:Purged", async ({ event, context }) => {
 });
 
 ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
+  const memeTokenAddress = event.args.memeToken;
+
+  const results = await context.client.multicall({
+    contracts: [
+      {
+        abi: Erc20Abi,
+        address: memeTokenAddress,
+        functionName: 'name',
+      },
+      {
+        abi: Erc20Abi,
+        address: memeTokenAddress,
+        functionName: 'symbol',
+      },
+      {
+        abi: Erc20Abi,
+        address: memeTokenAddress,
+        functionName: 'decimals'
+      }
+    ]
+  })
+
   await context.db.MemeToken.create({
     id: `base-${event.args.memeToken}`,
     data: {
@@ -141,6 +166,9 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
       owner: event.args.summoner,
       memeToken: event.args.memeToken,
       memeNonce: 0n,
+      name: results[0].result,
+      symbol: results[1].result,
+      decimals: BigInt(results[2].result),
       lpPairAddress: "",
       lpTokenId: 0n,
       liquidity: 0n,
@@ -166,6 +194,28 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
 });
 
 ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
+  const memeTokenAddress = event.args.memeToken;
+
+  const results = await context.client.multicall({
+    contracts: [
+      {
+        abi: Erc20Abi,
+        address: memeTokenAddress,
+        functionName: 'name',
+      },
+      {
+        abi: Erc20Abi,
+        address: memeTokenAddress,
+        functionName: 'symbol',
+      },
+      {
+        abi: Erc20Abi,
+        address: memeTokenAddress,
+        functionName: 'decimals'
+      }
+    ]
+  })
+
   await context.db.MemeToken.create({
     id: `celo-${event.args.memeToken}`,
     data: {
@@ -173,6 +223,9 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
       owner: event.args.summoner,
       memeToken: event.args.memeToken,
       memeNonce: 0n,
+      name: results[0].result,
+      symbol: results[1].result,
+      decimals: BigInt(results[2].result),
       lpPairAddress: "",
       lpTokenId: 0n,
       liquidity: 0n,
@@ -410,6 +463,13 @@ ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
 });
 
 ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
+  const memeSummon = await context.client.readContract({
+    abi: MemeFactoryAbiBase,
+    address: "0x82A9c823332518c32a0c0eDC050Ef00934Cf04D4",
+    functionName: "memeSummons",
+    args: [event.args.memeNonce],
+  });
+
   await context.db.MemeToken.create({
     id: `base-${event.args.memeNonce}`,
     data: {
@@ -417,6 +477,9 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
       owner: event.args.summoner,
       memeToken: "",
       memeNonce: event.args.memeNonce,
+      name: memeSummon[0],
+      symbol: memeSummon[1],
+      decimals: 18n,
       lpPairAddress: "",
       lpTokenId: 0n,
       liquidity: 0n,
@@ -441,7 +504,89 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
   });
 });
 
+import { decodeFunctionResult } from 'viem';
+
 ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
+
+  // const results = await context.client.multicall({
+  //   contracts: [
+  //     {
+  //       abi: MemeFactoryAbiCelo,
+  //       address: "0xEea5F1e202dc43607273d54101fF8b58FB008A99",
+  //       functionName: 'memeSummons',
+  //       args: [event.args.memeNonce],
+  //     }
+  //   ]
+  // })
+  // const memeSummon = await context.client.readContract({
+  //   abi: MemeFactoryAbiCelo,
+  //   address: "0xEea5F1e202dc43607273d54101fF8b58FB008A99",
+  //   functionName: "memeSummons",
+  //   args: [event.args.memeNonce],
+  // });
+  function composeData(memeNonce) {
+    // creates eg "0x72f2a36b0000000000000000000000000000000000000000000000000000000000000001" from nonce 1
+    const methodId = "0x72f2a36b"; // First 8 hex characters of the data
+    const paddedNonce = memeNonce.toString(16).padStart(64, "0"); // Convert to hex and pad to 64 characters
+    return methodId + paddedNonce; // Concatenate method ID with padded nonce
+  }
+  const data = composeData(event.args.memeNonce);
+  const response = await fetch("https://forno.celo.org", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      method: "eth_call",
+      params: [
+        {
+          to: "0xEea5F1e202dc43607273d54101fF8b58FB008A99",
+          data: data,
+        },
+        "latest",
+      ],
+      id: 1,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+
+  const rdata = await response.json();
+  console.log("Received data:", rdata);
+
+  // const ethers = require("ethers");
+
+  // function decodeResult(result) {
+  //   // Define the output types: string for name, string for symbol
+  //   const outputTypes = ["string", "string"];
+
+  //   // Slice the result to remove the '0x' prefix
+  //   const rawData = result.slice(2);
+
+  //   // Decode the data
+  //   const decoded = ethers.utils.defaultAbiCoder.decode(outputTypes, "0x" + rawData);
+
+  //   // Extract name and symbol
+  //   const name = decoded[0];
+  //   const symbol = decoded[1];
+
+  //   return { name, symbol };
+  // }
+  const decoded = decodeFunctionResult({
+      abi: MemeFactoryAbiCelo,
+      functionName: 'memeSummons',
+      data: rdata.result,
+    });
+
+  const name = decoded[0];
+  const symbol = decoded[1];
+  // const { name, symbol } = decodeResult(rdata.result);
+  console.log("Name:", name);
+  console.log("Symbol:", symbol);
+
   await context.db.MemeToken.create({
     id: `celo-${event.args.memeNonce}`,
     data: {
@@ -449,6 +594,13 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
       owner: event.args.summoner,
       memeToken: "",
       memeNonce: event.args.memeNonce,
+      // name: results[0].result[0],
+      // symbol: results[0].result[1],
+      // name: memeSummon[0],
+      // symbol: memeSummon[1],
+      name: name,
+      symbol: symbol,
+      decimals: 18n,
       lpPairAddress: "",
       lpTokenId: 0n,
       liquidity: 0n,
