@@ -11,6 +11,7 @@ This indexer tracks the following Memeorr events:
 - Purged
 - Summoned
 - Unleashed
+- FeesCollected
 
 The indexed data is exposed via a GraphQL API that can be queried to analyze Memeorr activity.
 
@@ -50,3 +51,60 @@ The GraphQL playground will be available at http://localhost:42069/graphql
 ## Deploy
 
 Check out the ponder [deployment guide](https://ponder.sh/docs/production/deploy) for detailed instructions.
+
+
+## Useful queries for testing:
+
+Run ponder on one port:
+
+```
+ npm run dev
+```
+
+Query all summon events and format:
+
+```
+curl -X POST http://localhost:42069/graphql \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "query { summonEvents { items { id chain summoner memeToken memeNonce nativeTokenContributed timestamp blockNumber } } }"
+  }' | awk '
+  BEGIN { indent = 0 }
+  {
+    gsub(",", ",\n", $0);
+    gsub("{", "{\n", $0);
+    gsub("}", "\n}", $0);
+    gsub(":", ": ", $0);
+    for (i = 1; i <= length($0); i++) {
+      char = substr($0, i, 1);
+      if (char == "{") { print char; indent += 2 }
+      else if (char == "}") { indent -= 2; printf("%*s%s\n", indent, "", char) }
+      else if (char == ",") { print char; printf("%*s", indent, "") }
+      else printf("%s", char)
+    }
+  }'
+```
+
+Query all tokens and format:
+
+```
+ curl -X POST http://localhost:42069/graphql \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "query { memeTokens { items { id chain owner memeToken memeNonce lpPairAddress lpTokenId liquidity heartCount isUnleashed timestamp blockNumber } } }"
+  }' | awk '
+  BEGIN { indent = 0 }
+  {
+    gsub(",", ",\n", $0);
+    gsub("{", "{\n", $0);
+    gsub("}", "\n}", $0);
+    gsub(":", ": ", $0);
+    for (i = 1; i <= length($0); i++) {
+      char = substr($0, i, 1);
+      if (char == "{") { print char; indent += 2 }
+      else if (char == "}") { indent -= 2; printf("%*s%s\n", indent, "", char) }
+      else if (char == ",") { print char; printf("%*s", indent, "") }
+      else printf("%s", char)
+    }
+  }'
+```
