@@ -3,6 +3,7 @@ import { http } from "viem";
 
 import { MemeAbi_0_1_0 } from "./abis/MemeABI_0_1_0";
 import { MemeAbi_0_2_0 } from "./abis/MemeABI_0_2_0";
+import { timeout } from "hono/timeout";
 
 export default createConfig({
   networks: {
@@ -12,7 +13,7 @@ export default createConfig({
     // },
     base: {
       chainId: 8453,
-      transport: http(process.env.PONDER_RPC_URL_8453),
+      transport: http(process.env.PONDER_RPC_URL_8453, {timeout: 1000}),
     },
     celo: {
       chainId: 42220,

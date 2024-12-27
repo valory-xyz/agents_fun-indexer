@@ -176,6 +176,9 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
       heartCount: 0n,
       heartAmount: 0n,
       isUnleashed: false,
+      summonTime: Number(event.block.timestamp), 
+      unleashTime: 0, 
+      summoner: event.args.summoner,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
     },
@@ -233,6 +236,9 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
       heartCount: 0n,
       heartAmount: 0n,
       isUnleashed: false,
+      summonTime: Number(event.block.timestamp),
+      unleashTime: 0, 
+      summoner: event.args.summoner,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
     },
@@ -258,6 +264,7 @@ ponder.on("MemeBase_0_1_0:Unleashed", async ({ event, context }) => {
       lpPairAddress: event.args.lpPairAddress,
       liquidity: event.args.liquidity,
       isUnleashed: true,
+      unleashTime: Number(event.block.timestamp),
     },
   });
 
@@ -283,6 +290,7 @@ ponder.on("MemeCelo_0_1_0:Unleashed", async ({ event, context }) => {
       lpPairAddress: event.args.lpPairAddress,
       liquidity: event.args.liquidity,
       isUnleashed: true,
+      unleashTime: Number(event.block.timestamp),
     },
   });
 
@@ -489,6 +497,9 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
       isUnleashed: false,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
+      summoner: event.args.summoner,
+      summonTime: Number(event.block.timestamp),
+      unleashTime: 0,
     },
   });
 
@@ -586,6 +597,9 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
       isUnleashed: false,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
+      summoner: event.args.summoner,
+      summonTime: Number(event.block.timestamp),
+      unleashTime: 0,
     },
   });
 
@@ -610,6 +624,7 @@ ponder.on("MemeBase_0_2_0:Unleashed", async ({ event, context }) => {
       lpTokenId: event.args.lpTokenId,
       liquidity: event.args.liquidity,
       isUnleashed: true,
+      unleashTime: Number(event.block.timestamp),
     },
   });
 
@@ -635,6 +650,7 @@ ponder.on("MemeCelo_0_2_0:Unleashed", async ({ event, context }) => {
       lpTokenId: event.args.lpTokenId,
       liquidity: event.args.liquidity,
       isUnleashed: true,
+      unleashTime: Number(event.block.timestamp),
     },
   });
 
