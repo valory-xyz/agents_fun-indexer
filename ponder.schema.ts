@@ -85,9 +85,10 @@ export default createSchema((p) => ({
     heartCount: p.bigint(),
     heartAmount: p.bigint(),
     isUnleashed: p.boolean(),
-    summonTime: p.int(), // New field
-    unleashTime: p.int(), // New field
-    summoner: p.string(), // New field
+    unleashableTimestamp: p.int(),
+    summonTime: p.int(),
+    unleashTime: p.int(),
+    summoner: p.string(),
     timestamp: p.int(),
     blockNumber: p.int(),
   }),

@@ -1,8 +1,8 @@
 import { ponder } from "@/generated";
 import { Erc20Abi } from "./abis/Erc20Abi";
 import { MemeFactoryAbiBase } from "./abis/MemeFactoryAbiBase";
-import { MemeFactoryAbiCelo } from "./abis/MemeFactoryAbiCelo";
-import { decodeFunctionResult } from 'viem';
+import { Abi, encodeFunctionData, decodeFunctionResult, ContractFunctionName, ContractFunctionArgs, DecodeFunctionResultReturnType } from 'viem';
+
 
 // version 0.1.0 events
 ponder.on("MemeBase_0_1_0:Collected", async ({ event, context }) => {
@@ -156,6 +156,11 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
         abi: Erc20Abi,
         address: memeTokenAddress,
         functionName: 'decimals'
+      },
+      {
+        abi: context.contracts.MemeBase_0_1_0.abi,
+        address: context.contracts.MemeBase_0_1_0.address,
+        functionName: 'UNLEASH_DELAY'
       }
     ]
   })
@@ -176,6 +181,7 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
       heartCount: 0n,
       heartAmount: 0n,
       isUnleashed: false,
+      unleashableTimestamp: Number(event.block.timestamp) + Number(results[3].result),
       summonTime: Number(event.block.timestamp), 
       unleashTime: 0, 
       summoner: event.args.summoner,
@@ -216,6 +222,11 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
         abi: Erc20Abi,
         address: memeTokenAddress,
         functionName: 'decimals'
+      },
+      {
+        abi: context.contracts.MemeCelo_0_1_0.abi,
+        address: context.contracts.MemeCelo_0_1_0.address,
+        functionName: 'UNLEASH_DELAY'
       }
     ]
   })
@@ -236,6 +247,7 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
       heartCount: 0n,
       heartAmount: 0n,
       isUnleashed: false,
+      unleashableTimestamp: Number(event.block.timestamp) + Number(results[3].result),
       summonTime: Number(event.block.timestamp),
       unleashTime: 0, 
       summoner: event.args.summoner,
@@ -337,9 +349,6 @@ ponder.on("MemeCelo_0_2_0:Collected", async ({ event, context }) => {
     },
   });
 });
-
-
-
 
 ponder.on("MemeBase_0_2_0:FeesCollected", async ({ event, context }) => {
   await context.db.FeeCollectEvent.create({
@@ -474,9 +483,15 @@ ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
 ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
   const memeSummon = await context.client.readContract({
     abi: MemeFactoryAbiBase,
-    address: "0x82A9c823332518c32a0c0eDC050Ef00934Cf04D4",
+    address: context.contracts.MemeBase_0_2_0.address,
     functionName: "memeSummons",
     args: [event.args.memeNonce],
+  });
+
+  const unleashDelay = await context.client.readContract({
+    abi: context.contracts.MemeBase_0_2_0.abi,
+    address: context.contracts.MemeBase_0_2_0.address,
+    functionName: "UNLEASH_DELAY",
   });
 
   await context.db.MemeToken.create({
@@ -495,6 +510,7 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
       heartCount: 0n,
       heartAmount: 0n,
       isUnleashed: false,
+      unleashableTimestamp: Number(event.block.timestamp) + Number(unleashDelay),
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
       summoner: event.args.summoner,
@@ -518,29 +534,24 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
 
 ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
 
-  // const results = await context.client.multicall({
-  //   contracts: [
-  //     {
-  //       abi: MemeFactoryAbiCelo,
-  //       address: "0xEea5F1e202dc43607273d54101fF8b58FB008A99",
-  //       functionName: 'memeSummons',
-  //       args: [event.args.memeNonce],
-  //     }
-  //   ]
-  // })
-  // const memeSummon = await context.client.readContract({
-  //   abi: MemeFactoryAbiCelo,
-  //   address: "0xEea5F1e202dc43607273d54101fF8b58FB008A99",
-  //   functionName: "memeSummons",
-  //   args: [event.args.memeNonce],
-  // });
-  function composeData(memeNonce) {
-    // creates eg "0x72f2a36b0000000000000000000000000000000000000000000000000000000000000001" from nonce 1
-    const methodId = "0x72f2a36b"; // First 8 hex characters of the data
-    const paddedNonce = memeNonce.toString(16).padStart(64, "0"); // Convert to hex and pad to 64 characters
-    return methodId + paddedNonce; // Concatenate method ID with padded nonce
-  }
-  const data = composeData(event.args.memeNonce);
+  const abi = context.contracts.MemeCelo_0_2_0.abi;
+  const contractAddress = context.contracts.MemeCelo_0_2_0.address;
+
+  async function callContractFunction({
+    functionName,
+    args,
+  }: {
+    functionName: ContractFunctionName<typeof abi>,
+    args?: ContractFunctionArgs<typeof abi>
+  }) {
+   // Step 1: Compose the data (encoded function call)
+  const data = encodeFunctionData({
+    abi,
+    functionName,
+    args,
+  });
+
+  // Step 2: Fetch the eth_call
   const response = await fetch("https://forno.celo.org", {
     method: "POST",
     headers: {
@@ -551,7 +562,7 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
       method: "eth_call",
       params: [
         {
-          to: "0xEea5F1e202dc43607273d54101fF8b58FB008A99",
+          to: contractAddress,
           data: data,
         },
         "latest",
@@ -560,20 +571,24 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
     }),
   });
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! Status: ${response.status}`);
-  }
+    const rdata = await response.json();
 
-  const rdata = await response.json();
-
-  const decoded = decodeFunctionResult({
-      abi: MemeFactoryAbiCelo,
-      functionName: 'memeSummons',
+    // Step 3: Decode the result
+    const decoded = decodeFunctionResult({
+      abi,
+      functionName,
       data: rdata.result,
     });
 
-  const name = decoded[0];
-  const symbol = decoded[1];
+    return decoded;
+  }
+
+  const memeNonce = await callContractFunction({ functionName: 'memeSummons', args: [event.args.memeNonce] }) as any
+
+  const name = memeNonce[0];
+  const symbol = memeNonce[1];
+
+  const unleashDelay = await callContractFunction({ functionName: 'UNLEASH_DELAY' }) as bigint
 
   await context.db.MemeToken.create({
     id: `celo-${event.args.memeNonce}`,
@@ -582,10 +597,6 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
       owner: event.args.summoner,
       memeToken: "",
       memeNonce: event.args.memeNonce,
-      // name: results[0].result[0],
-      // symbol: results[0].result[1],
-      // name: memeSummon[0],
-      // symbol: memeSummon[1],
       name: name,
       symbol: symbol,
       decimals: 18n,
@@ -595,6 +606,7 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
       heartCount: 0n,
       heartAmount: 0n,
       isUnleashed: false,
+      unleashableTimestamp: Number(event.block.timestamp) + Number(unleashDelay),
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
       summoner: event.args.summoner,
