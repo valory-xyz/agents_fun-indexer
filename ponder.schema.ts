@@ -91,5 +91,7 @@ export default createSchema((p) => ({
     summoner: p.string(),
     timestamp: p.int(),
     blockNumber: p.int(),
+    isPurged: p.boolean().optional(),
+    purgeTime: p.int().optional(),
   }),
 }));

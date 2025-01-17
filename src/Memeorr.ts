@@ -122,6 +122,14 @@ ponder.on("MemeBase_0_1_0:Purged", async ({ event, context }) => {
       blockNumber: Number(event.block.number),
     },
   });
+
+  await context.db.MemeToken.update({
+    id: `base-${event.args.memeToken}`,
+    data: {
+      isPurged: true,
+      purgeTime: Number(event.block.timestamp),
+    },
+  });
 });
 
 ponder.on("MemeCelo_0_1_0:Purged", async ({ event, context }) => {
@@ -133,6 +141,14 @@ ponder.on("MemeCelo_0_1_0:Purged", async ({ event, context }) => {
       remainingAmount: event.args.remainingAmount,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
+    },
+  });
+
+  await context.db.MemeToken.update({
+    id: `celo-${event.args.memeToken}`,
+    data: {
+      isPurged: true,
+      purgeTime: Number(event.block.timestamp),
     },
   });
 });
@@ -466,6 +482,14 @@ ponder.on("MemeBase_0_2_0:Purged", async ({ event, context }) => {
       blockNumber: Number(event.block.number),
     },
   });
+
+  await context.db.MemeToken.update({
+    id: `base-${event.args.memeToken}`,
+    data: {
+      isPurged: true,
+      purgeTime: Number(event.block.timestamp),
+    },
+  });
 });
 
 ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
@@ -476,6 +500,14 @@ ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
       memeToken: event.args.memeToken,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
+    },
+  });
+
+  await context.db.MemeToken.update({
+    id: `celo-${event.args.memeToken}`,
+    data: {
+      isPurged: true,
+      purgeTime: Number(event.block.timestamp),
     },
   });
 });
