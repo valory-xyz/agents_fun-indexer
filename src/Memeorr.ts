@@ -112,45 +112,61 @@ ponder.on("MemeCelo_0_1_0:OLASJourneyToAscendance", async ({ event, context }) =
 });
 
 ponder.on("MemeBase_0_1_0:Purged", async ({ event, context }) => {
-  await context.db.PurgeEvent.create({
-    id: event.log.id,
-    data: {
-      chain: "base",
-      memeToken: event.args.memeToken,
-      remainingAmount: event.args.remainingAmount,
-      timestamp: Number(event.block.timestamp),
-      blockNumber: Number(event.block.number),
-    },
+  const memeToken = await context.db.MemeToken.findUnique({
+    id: `base-${event.args.memeToken}`,
   });
 
-  await context.db.MemeToken.update({
-    id: `base-${event.args.memeToken}`,
-    data: {
-      isPurged: true,
-      purgeTime: Number(event.block.timestamp),
-    },
-  });
+  if (memeToken) {
+    await context.db.PurgeEvent.create({
+      id: event.log.id,
+      data: {
+        chain: "base",
+        memeToken: event.args.memeToken,
+        remainingAmount: event.args.remainingAmount,
+        timestamp: Number(event.block.timestamp),
+        blockNumber: Number(event.block.number),
+      },
+    });
+
+    await context.db.MemeToken.update({
+      id: `base-${event.args.memeToken}`,
+      data: {
+        isPurged: true,
+        purgeTime: Number(event.block.timestamp),
+      },
+    });
+  } else {
+    console.log(`MemeToken with ID base-${event.args.memeToken} not found.`);
+  }
 });
 
 ponder.on("MemeCelo_0_1_0:Purged", async ({ event, context }) => {
-  await context.db.PurgeEvent.create({
-    id: event.log.id,
-    data: {
-      chain: "celo",
-      memeToken: event.args.memeToken,
-      remainingAmount: event.args.remainingAmount,
-      timestamp: Number(event.block.timestamp),
-      blockNumber: Number(event.block.number),
-    },
+  const memeToken = await context.db.MemeToken.findUnique({
+    id: `celo-${event.args.memeToken}`,
   });
 
-  await context.db.MemeToken.update({
-    id: `celo-${event.args.memeToken}`,
-    data: {
-      isPurged: true,
-      purgeTime: Number(event.block.timestamp),
-    },
-  });
+  if (memeToken) {
+    await context.db.PurgeEvent.create({
+      id: event.log.id,
+      data: {
+        chain: "celo",
+        memeToken: event.args.memeToken,
+        remainingAmount: event.args.remainingAmount,
+        timestamp: Number(event.block.timestamp),
+        blockNumber: Number(event.block.number),
+      },
+    });
+
+    await context.db.MemeToken.update({
+      id: `celo-${event.args.memeToken}`,
+      data: {
+        isPurged: true,
+        purgeTime: Number(event.block.timestamp),
+      },
+    });
+  } else {
+    console.log(`MemeToken with ID celo-${event.args.memeToken} not found.`);
+  }
 });
 
 ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
@@ -473,43 +489,59 @@ ponder.on("MemeCelo_0_2_0:OLASJourneyToAscendance", async ({ event, context }) =
 });
 
 ponder.on("MemeBase_0_2_0:Purged", async ({ event, context }) => {
-  await context.db.PurgeEvent.create({
-    id: event.log.id,
-    data: {
-      chain: "base",
-      memeToken: event.args.memeToken,
-      timestamp: Number(event.block.timestamp),
-      blockNumber: Number(event.block.number),
-    },
+  const memeToken = await context.db.MemeToken.findUnique({
+    id: `base-${event.args.memeToken}`,
   });
 
-  await context.db.MemeToken.update({
-    id: `base-${event.args.memeToken}`,
-    data: {
-      isPurged: true,
-      purgeTime: Number(event.block.timestamp),
-    },
-  });
+  if (memeToken) {
+    await context.db.PurgeEvent.create({
+      id: event.log.id,
+      data: {
+        chain: "base",
+        memeToken: event.args.memeToken,
+        timestamp: Number(event.block.timestamp),
+        blockNumber: Number(event.block.number),
+      },
+    });
+
+    await context.db.MemeToken.update({
+      id: `base-${event.args.memeToken}`,
+      data: {
+        isPurged: true,
+        purgeTime: Number(event.block.timestamp),
+      },
+    });
+  } else {
+    console.log(`MemeToken with ID base-${event.args.memeToken} not found.`);
+  }
 });
 
 ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
-  await context.db.PurgeEvent.create({
-    id: event.log.id,
-    data: {
-      chain: "celo",
-      memeToken: event.args.memeToken,
-      timestamp: Number(event.block.timestamp),
-      blockNumber: Number(event.block.number),
-    },
+  const memeToken = await context.db.MemeToken.findUnique({
+    id: `celo-${event.args.memeToken}`,
   });
 
-  await context.db.MemeToken.update({
-    id: `celo-${event.args.memeToken}`,
-    data: {
-      isPurged: true,
-      purgeTime: Number(event.block.timestamp),
-    },
-  });
+  if (memeToken) {
+    await context.db.PurgeEvent.create({
+      id: event.log.id,
+      data: {
+        chain: "celo",
+        memeToken: event.args.memeToken,
+        timestamp: Number(event.block.timestamp),
+        blockNumber: Number(event.block.number),
+      },
+    });
+
+    await context.db.MemeToken.update({
+      id: `celo-${event.args.memeToken}`,
+      data: {
+        isPurged: true,
+        purgeTime: Number(event.block.timestamp),
+      },
+    });
+  } else {
+    console.log(`MemeToken with ID celo-${event.args.memeToken} not found.`);
+  }
 });
 
 ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
