@@ -195,7 +195,7 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
         functionName: 'UNLEASH_DELAY'
       }
     ]
-  })
+  });
 
   await context.db.MemeToken.create({
     id: `base-${event.args.memeToken}`,
@@ -219,6 +219,7 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
       summoner: event.args.summoner,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
+      isPurged: false, // Set isPurged to false
     },
   });
 
@@ -261,7 +262,7 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
         functionName: 'UNLEASH_DELAY'
       }
     ]
-  })
+  });
 
   await context.db.MemeToken.create({
     id: `celo-${event.args.memeToken}`,
@@ -285,6 +286,7 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
       summoner: event.args.summoner,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
+      isPurged: false, // Set isPurged to false
     },
   });
 
@@ -580,6 +582,7 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
       summoner: event.args.summoner,
       summonTime: Number(event.block.timestamp),
       unleashTime: 0,
+      isPurged: false, // Set isPurged to false
     },
   });
 
@@ -676,6 +679,7 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
       summoner: event.args.summoner,
       summonTime: Number(event.block.timestamp),
       unleashTime: 0,
+      isPurged: false, // Set isPurged to false
     },
   });
 
