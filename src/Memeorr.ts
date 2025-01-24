@@ -219,7 +219,7 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
       summoner: event.args.summoner,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
-      isPurged: false, // Set isPurged to false
+      isPurged: false, 
     },
   });
 
@@ -286,7 +286,7 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
       summoner: event.args.summoner,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
-      isPurged: false, // Set isPurged to false
+      isPurged: false, 
     },
   });
 
@@ -582,7 +582,7 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
       summoner: event.args.summoner,
       summonTime: Number(event.block.timestamp),
       unleashTime: 0,
-      isPurged: false, // Set isPurged to false
+      isPurged: false, 
     },
   });
 
@@ -679,7 +679,7 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
       summoner: event.args.summoner,
       summonTime: Number(event.block.timestamp),
       unleashTime: 0,
-      isPurged: false, // Set isPurged to false
+      isPurged: false, 
     },
   });
 
