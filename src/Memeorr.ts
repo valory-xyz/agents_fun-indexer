@@ -506,21 +506,21 @@ ponder.on("MemeCelo_0_2_0:OLASJourneyToAscendance", async ({ event, context }) =
 });
 
 ponder.on("MemeBase_0_2_0:Purged", async ({ event, context }) => {
+  await context.db.PurgeEvent.create({
+    id: event.log.id,
+    data: {
+      chain: "base",
+      memeToken: event.args.memeToken,
+      timestamp: Number(event.block.timestamp),
+      blockNumber: Number(event.block.number),
+    },
+  });
+
   const memeTokenNonce = await context.db.MemeTokenNonce.findUnique({
     id: `base-${event.args.memeToken}`,
   });
 
   if (memeTokenNonce) {
-    await context.db.PurgeEvent.create({
-      id: event.log.id,
-      data: {
-        chain: "base",
-        memeToken: event.args.memeToken,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: Number(event.block.number),
-      },
-    });
-
     await context.db.MemeToken.update({
       id: `base-${memeTokenNonce.nonce}`,
       data: {
@@ -534,21 +534,21 @@ ponder.on("MemeBase_0_2_0:Purged", async ({ event, context }) => {
 });
 
 ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
+  await context.db.PurgeEvent.create({
+    id: event.log.id,
+    data: {
+      chain: "celo",
+      memeToken: event.args.memeToken,
+      timestamp: Number(event.block.timestamp),
+      blockNumber: Number(event.block.number),
+    },
+  });
+
   const memeTokenNonce = await context.db.MemeTokenNonce.findUnique({
     id: `celo-${event.args.memeToken}`,
   });
 
   if (memeTokenNonce) {
-    await context.db.PurgeEvent.create({
-      id: event.log.id,
-      data: {
-        chain: "celo",
-        memeToken: event.args.memeToken,
-        timestamp: Number(event.block.timestamp),
-        blockNumber: Number(event.block.number),
-      },
-    });
-
     await context.db.MemeToken.update({
       id: `celo-${memeTokenNonce.nonce}`,
       data: {
@@ -723,25 +723,12 @@ ponder.on("MemeBase_0_2_0:Unleashed", async ({ event, context }) => {
     },
   });
 
-  const memeTokenNonce = await context.db.MemeTokenNonce.findUnique({
+  await context.db.MemeTokenNonce.create({
     id: `base-${event.args.memeToken}`,
+    data: {
+      nonce: event.args.memeNonce,
+    },
   });
-
-  if (memeTokenNonce) {
-    await context.db.MemeTokenNonce.update({
-      id: `base-${event.args.memeToken}`,
-      data: {
-        nonce: event.args.memeNonce,
-      },
-    });
-  } else {
-    await context.db.MemeTokenNonce.create({
-      id: `base-${event.args.memeToken}`,
-      data: {
-        nonce: event.args.memeNonce,
-      },
-    });
-  }
 
   await context.db.UnleashEvent.create({
     id: event.log.id,
@@ -769,25 +756,12 @@ ponder.on("MemeCelo_0_2_0:Unleashed", async ({ event, context }) => {
     },
   });
 
-  const memeTokenNonce = await context.db.MemeTokenNonce.findUnique({
+  await context.db.MemeTokenNonce.create({
     id: `celo-${event.args.memeToken}`,
+    data: {
+      nonce: event.args.memeNonce,
+    },
   });
-
-  if (memeTokenNonce) {
-    await context.db.MemeTokenNonce.update({
-      id: `celo-${event.args.memeToken}`,
-      data: {
-        nonce: event.args.memeNonce,
-      },
-    });
-  } else {
-    await context.db.MemeTokenNonce.create({
-      id: `celo-${event.args.memeToken}`,
-      data: {
-        nonce: event.args.memeNonce,
-      },
-    });
-  }
 
   await context.db.UnleashEvent.create({
     id: event.log.id,
