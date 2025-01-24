@@ -492,7 +492,7 @@ ponder.on("MemeCelo_0_2_0:OLASJourneyToAscendance", async ({ event, context }) =
 
 ponder.on("MemeBase_0_2_0:Purged", async ({ event, context }) => {
   const memeToken = await context.db.MemeToken.findUnique({
-    id: `base-${event.args.memeToken}`,
+    id: `base-${event.args.memeNonce}`,
   });
 
   if (memeToken) {
@@ -507,20 +507,20 @@ ponder.on("MemeBase_0_2_0:Purged", async ({ event, context }) => {
     });
 
     await context.db.MemeToken.update({
-      id: `base-${event.args.memeToken}`,
+      id: `base-${event.args.memeNonce}`,
       data: {
         isPurged: true,
         purgeTime: Number(event.block.timestamp),
       },
     });
   } else {
-    console.log(`MemeToken with ID base-${event.args.memeToken} not found.`);
+    console.log(`MemeToken with ID base-${event.args.memeNonce} not found.`);
   }
 });
 
 ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
   const memeToken = await context.db.MemeToken.findUnique({
-    id: `celo-${event.args.memeToken}`,
+    id: `celo-${event.args.memeNonce}`,
   });
 
   if (memeToken) {
@@ -535,14 +535,14 @@ ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
     });
 
     await context.db.MemeToken.update({
-      id: `celo-${event.args.memeToken}`,
+      id: `celo-${event.args.memeNonce}`,
       data: {
         isPurged: true,
         purgeTime: Number(event.block.timestamp),
       },
     });
   } else {
-    console.log(`MemeToken with ID celo-${event.args.memeToken} not found.`);
+    console.log(`MemeToken with ID celo-${event.args.memeNonce} not found.`);
   }
 });
 
