@@ -94,4 +94,9 @@ export default createSchema((p) => ({
     isPurged: p.boolean(),
     purgeTime: p.int().optional(),
   }),
+
+  MemeTokenNonce: p.createTable({
+    id: p.string(),
+    nonce: p.bigint()
+  })
 }));
