@@ -2,7 +2,22 @@ import { ponder } from "@/generated";
 import { Erc20Abi } from "./abis/Erc20Abi";
 import { MemeFactoryAbiBase } from "./abis/MemeFactoryAbiBase";
 import { Abi, encodeFunctionData, decodeFunctionResult, ContractFunctionName, ContractFunctionArgs, DecodeFunctionResultReturnType } from 'viem';
+import { unique } from "viem/chains";
+import winston from 'winston';
 
+// Configure winston logger
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(({ timestamp, level, message }) => {
+      return `${timestamp} ${level}: ${message}`;
+    })
+  ),
+  transports: [
+    new winston.transports.Console(),
+  ],
+});
 
 // version 0.1.0 events
 ponder.on("MemeBase_0_1_0:Collected", async ({ event, context }) => {
@@ -112,29 +127,61 @@ ponder.on("MemeCelo_0_1_0:OLASJourneyToAscendance", async ({ event, context }) =
 });
 
 ponder.on("MemeBase_0_1_0:Purged", async ({ event, context }) => {
-  await context.db.PurgeEvent.create({
-    id: event.log.id,
-    data: {
-      chain: "base",
-      memeToken: event.args.memeToken,
-      remainingAmount: event.args.remainingAmount,
-      timestamp: Number(event.block.timestamp),
-      blockNumber: Number(event.block.number),
-    },
+  const memeToken = await context.db.MemeToken.findUnique({
+    id: `base-${event.args.memeToken}`,
   });
+
+  if (memeToken) {
+    await context.db.PurgeEvent.create({
+      id: event.log.id,
+      data: {
+        chain: "base",
+        memeToken: event.args.memeToken,
+        remainingAmount: event.args.remainingAmount,
+        timestamp: Number(event.block.timestamp),
+        blockNumber: Number(event.block.number),
+      },
+    });
+
+    await context.db.MemeToken.update({
+      id: `base-${event.args.memeToken}`,
+      data: {
+        isPurged: true,
+        purgeTime: Number(event.block.timestamp),
+      },
+    });
+  } else {
+    logger.warn(`MemeToken with ID base-${event.args.memeToken} not found for 1.0`);
+  }
 });
 
 ponder.on("MemeCelo_0_1_0:Purged", async ({ event, context }) => {
-  await context.db.PurgeEvent.create({
-    id: event.log.id,
-    data: {
-      chain: "celo",
-      memeToken: event.args.memeToken,
-      remainingAmount: event.args.remainingAmount,
-      timestamp: Number(event.block.timestamp),
-      blockNumber: Number(event.block.number),
-    },
+  const memeToken = await context.db.MemeToken.findUnique({
+    id: `celo-${event.args.memeToken}`,
   });
+
+  if (memeToken) {
+    await context.db.PurgeEvent.create({
+      id: event.log.id,
+      data: {
+        chain: "celo",
+        memeToken: event.args.memeToken,
+        remainingAmount: event.args.remainingAmount,
+        timestamp: Number(event.block.timestamp),
+        blockNumber: Number(event.block.number),
+      },
+    });
+
+    await context.db.MemeToken.update({
+      id: `celo-${event.args.memeToken}`,
+      data: {
+        isPurged: true,
+        purgeTime: Number(event.block.timestamp),
+      },
+    });
+  } else {
+    logger.warn(`MemeToken with ID celo-${event.args.memeToken} not found 1.0`);
+  }
 });
 
 ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
@@ -163,7 +210,7 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
         functionName: 'UNLEASH_DELAY'
       }
     ]
-  })
+  });
 
   await context.db.MemeToken.create({
     id: `base-${event.args.memeToken}`,
@@ -187,6 +234,7 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
       summoner: event.args.summoner,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
+      isPurged: false, 
     },
   });
 
@@ -229,7 +277,7 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
         functionName: 'UNLEASH_DELAY'
       }
     ]
-  })
+  });
 
   await context.db.MemeToken.create({
     id: `celo-${event.args.memeToken}`,
@@ -253,6 +301,7 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
       summoner: event.args.summoner,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
+      isPurged: false, 
     },
   });
 
@@ -466,6 +515,22 @@ ponder.on("MemeBase_0_2_0:Purged", async ({ event, context }) => {
       blockNumber: Number(event.block.number),
     },
   });
+
+  const memeTokenNonce = await context.db.MemeTokenNonce.findUnique({
+    id: `base-${event.args.memeToken}`,
+  });
+
+  if (memeTokenNonce) {
+    await context.db.MemeToken.update({
+      id: `base-${memeTokenNonce.nonce}`,
+      data: {
+        isPurged: true,
+        purgeTime: Number(event.block.timestamp),
+      },
+    });
+  } else {
+    logger.warn(`memeTokenNonce with ID base-${event.args.memeToken} not found 2.0`);
+  }
 });
 
 ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
@@ -478,6 +543,22 @@ ponder.on("MemeCelo_0_2_0:Purged", async ({ event, context }) => {
       blockNumber: Number(event.block.number),
     },
   });
+
+  const memeTokenNonce = await context.db.MemeTokenNonce.findUnique({
+    id: `celo-${event.args.memeToken}`,
+  });
+
+  if (memeTokenNonce) {
+    await context.db.MemeToken.update({
+      id: `celo-${memeTokenNonce.nonce}`,
+      data: {
+        isPurged: true,
+        purgeTime: Number(event.block.timestamp),
+      },
+    });
+  } else {
+    logger.warn(`memeTokenNonce with ID celo-${event.args.memeToken} not found 2.0 , is the token unleashed ?`);
+  }
 });
 
 ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
@@ -516,6 +597,7 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
       summoner: event.args.summoner,
       summonTime: Number(event.block.timestamp),
       unleashTime: 0,
+      isPurged: false, 
     },
   });
 
@@ -612,6 +694,7 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
       summoner: event.args.summoner,
       summonTime: Number(event.block.timestamp),
       unleashTime: 0,
+      isPurged: false, 
     },
   });
 
@@ -640,6 +723,13 @@ ponder.on("MemeBase_0_2_0:Unleashed", async ({ event, context }) => {
     },
   });
 
+  await context.db.MemeTokenNonce.create({
+    id: `base-${event.args.memeToken}`,
+    data: {
+      nonce: event.args.memeNonce,
+    },
+  });
+
   await context.db.UnleashEvent.create({
     id: event.log.id,
     data: {
@@ -663,6 +753,13 @@ ponder.on("MemeCelo_0_2_0:Unleashed", async ({ event, context }) => {
       liquidity: event.args.liquidity,
       isUnleashed: true,
       unleashTime: Number(event.block.timestamp),
+    },
+  });
+
+  await context.db.MemeTokenNonce.create({
+    id: `celo-${event.args.memeToken}`,
+    data: {
+      nonce: event.args.memeNonce,
     },
   });
 

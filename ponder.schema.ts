@@ -91,5 +91,12 @@ export default createSchema((p) => ({
     summoner: p.string(),
     timestamp: p.int(),
     blockNumber: p.int(),
+    isPurged: p.boolean(),
+    purgeTime: p.int().optional(),
   }),
+
+  MemeTokenNonce: p.createTable({
+    id: p.string(),
+    nonce: p.bigint()
+  })
 }));
