@@ -13,10 +13,14 @@ export default createConfig({
     base: {
       chainId: 8453,
       transport: http(process.env.PONDER_RPC_URL_8453, { timeout: 1000 }),
+      pollingInterval: 5000,
+      maxRequestsPerSecond: 10,
     },
     celo: {
       chainId: 42220,
       transport: http(process.env.PONDER_RPC_URL_42220, { timeout: 1000 }),
+      pollingInterval: 5000,
+      maxRequestsPerSecond: 10,
     },
   },
   contracts: {
