@@ -93,6 +93,7 @@ export default createSchema((p) => ({
     blockNumber: p.int(),
     isPurged: p.boolean(),
     purgeTime: p.int().optional(),
+    hearters: p.json<{ [hearterAddress: string]: string }>(),
   }),
 
   MemeTokenNonce: p.createTable({
