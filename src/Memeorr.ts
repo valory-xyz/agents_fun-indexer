@@ -246,12 +246,6 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
 
   const unleashDelay = results[3].result ? Number(results[3].result) : 0;
 
-  
-
-  const initialHearters = {
-    [summoner]: event.transaction.value.toString(),
-  };
-
   await context.db.MemeToken.create({
     id: `${chain}-${event.args.memeToken}`,
     data: {
@@ -265,8 +259,8 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
       lpPairAddress: "",
       lpTokenId: 0n,
       liquidity: 0n,
-      heartCount: 1n,
-      heartAmount: event.transaction.value,
+      heartCount: 0n, 
+      heartAmount: 0n, 
       isUnleashed: false,
       unleashableTimestamp: Number(event.block.timestamp) + unleashDelay,
       summonTime: Number(event.block.timestamp),
@@ -275,7 +269,7 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
       isPurged: false,
-      hearters: initialHearters,
+      hearters: {}, 
     },
   });
 
@@ -285,7 +279,7 @@ ponder.on("MemeBase_0_1_0:Summoned", async ({ event, context }) => {
       chain: chain,
       summoner: event.args.summoner,
       memeToken: event.args.memeToken,
-      nativeTokenContributed: event.transaction.value,
+      nativeTokenContributed: event.args.nativeTokenContributed,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
     },
@@ -324,10 +318,6 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
 
   const unleashDelay = results[3].result ? Number(results[3].result) : 0;
 
-  const initialHearters = {
-    [summoner]: event.transaction.value.toString(),
-  };
-
   await context.db.MemeToken.create({
     id: `${chain}-${event.args.memeToken}`,
     data: {
@@ -341,8 +331,8 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
       lpPairAddress: "",
       lpTokenId: 0n,
       liquidity: 0n,
-      heartCount: 1n,
-      heartAmount: event.transaction.value,
+      heartCount: 0n, 
+      heartAmount: 0n, 
       isUnleashed: false,
       unleashableTimestamp: Number(event.block.timestamp) + unleashDelay,
       summonTime: Number(event.block.timestamp),
@@ -351,7 +341,7 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
       isPurged: false,
-      hearters: initialHearters,
+      hearters: {}, 
     },
   });
 
@@ -361,7 +351,7 @@ ponder.on("MemeCelo_0_1_0:Summoned", async ({ event, context }) => {
       chain: chain,
       summoner: event.args.summoner,
       memeToken: event.args.memeToken,
-      nativeTokenContributed: event.transaction.value,
+      nativeTokenContributed: event.args.nativeTokenContributed,
       timestamp: Number(event.block.timestamp),
       blockNumber: Number(event.block.number),
     },
@@ -658,10 +648,6 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
     functionName: "UNLEASH_DELAY",
   });
 
-  const initialHearters = {
-    [summoner]: event.args.amount.toString(),
-  };
-
   await context.db.MemeToken.create({
     id: `${chain}-${event.args.memeNonce}`,
     data: {
@@ -675,8 +661,8 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
       lpPairAddress: "",
       lpTokenId: 0n,
       liquidity: 0n,
-      heartCount: 1n,
-      heartAmount: event.args.amount,
+      heartCount: 0n, 
+      heartAmount: 0n, 
       isUnleashed: false,
       unleashableTimestamp: Number(event.block.timestamp) + Number(unleashDelay),
       timestamp: Number(event.block.timestamp),
@@ -685,7 +671,7 @@ ponder.on("MemeBase_0_2_0:Summoned", async ({ event, context }) => {
       summonTime: Number(event.block.timestamp),
       unleashTime: 0,
       isPurged: false,
-      hearters: initialHearters,
+      hearters: {}, 
     },
   });
 
@@ -762,10 +748,6 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
 
   const unleashDelay = await callContractFunction({ functionName: 'UNLEASH_DELAY' }) as bigint
 
-  const initialHearters = {
-    [summoner]: event.args.amount.toString(),
-  };
-
   await context.db.MemeToken.create({
     id: `${chain}-${event.args.memeNonce}`,
     data: {
@@ -779,8 +761,8 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
       lpPairAddress: "",
       lpTokenId: 0n,
       liquidity: 0n,
-      heartCount: 1n,
-      heartAmount: event.args.amount,
+      heartCount: 0n, 
+      heartAmount: 0n, 
       isUnleashed: false,
       unleashableTimestamp: Number(event.block.timestamp) + Number(unleashDelay),
       timestamp: Number(event.block.timestamp),
@@ -789,7 +771,7 @@ ponder.on("MemeCelo_0_2_0:Summoned", async ({ event, context }) => {
       summonTime: Number(event.block.timestamp),
       unleashTime: 0,
       isPurged: false,
-      hearters: initialHearters,
+      hearters: {}, 
     },
   });
 
