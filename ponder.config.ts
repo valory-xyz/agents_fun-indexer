@@ -18,9 +18,9 @@ export default createConfig({
     },
     celo: {
       chainId: 42220,
-      transport: http(process.env.PONDER_RPC_URL_42220, { timeout: 1000 }),
-      pollingInterval: 5000,
-      maxRequestsPerSecond: 10,
+      transport: http(process.env.PONDER_RPC_URL_42220, { timeout: 5000 }),
+      pollingInterval: 10000,
+      maxRequestsPerSecond: 5,
     },
   },
   contracts: {
